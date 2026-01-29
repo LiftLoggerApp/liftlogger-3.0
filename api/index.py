@@ -5,7 +5,8 @@ from typing import Optional, List
 from datetime import datetime
 import os
 from supabase import create_client, Client
-from jose import jwt, JWTError
+import jwt
+from jwt import PyJWKClient
 
 app = FastAPI(docs_url="/api/docs", openapi_url="/api/openapi.json")
 
@@ -27,24 +28,49 @@ def get_supabase() -> Client:
     return create_client(url, key)
 
 
+# JWKS client for verifying Supabase JWTs (ES256 asymmetric keys)
+_jwks_client: Optional[PyJWKClient] = None
+
+def get_jwks_client() -> PyJWKClient:
+    global _jwks_client
+    if _jwks_client is None:
+        supabase_url = os.environ.get("SUPABASE_URL", "")
+        if not supabase_url:
+            raise HTTPException(status_code=500, detail="Supabase URL not configured")
+        jwks_url = f"{supabase_url}/auth/v1/.well-known/jwks.json"
+        _jwks_client = PyJWKClient(jwks_url, cache_keys=True)
+    return _jwks_client
+
+
 # Auth dependency
 async def get_current_user(
     authorization: Optional[str] = Header(None),
-    supabase: Client = Depends(get_supabase),
 ) -> dict:
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing authorization header")
     
     try:
         token = authorization.replace("Bearer ", "")
-        # Verify JWT using Supabase JWT secret
-        jwt_secret = os.environ.get("SUPABASE_JWT_SECRET", "")
-        payload = jwt.decode(token, jwt_secret, algorithms=["HS256"], audience="authenticated")
+        
+        # Get the signing key from JWKS
+        jwks_client = get_jwks_client()
+        signing_key = jwks_client.get_signing_key_from_jwt(token)
+        
+        # Verify JWT using ES256 public key from Supabase JWKS
+        payload = jwt.decode(
+            token,
+            signing_key.key,
+            algorithms=["ES256"],
+            audience="authenticated",
+        )
+        
         user_id = payload.get("sub")
         if not user_id:
             raise HTTPException(status_code=401, detail="Invalid token")
         return {"id": user_id, "email": payload.get("email")}
-    except JWTError as e:
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError as e:
         raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
 
 
