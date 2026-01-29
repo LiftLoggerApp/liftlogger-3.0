@@ -1,0 +1,109 @@
+---
+description: Rules for working with the Python FastAPI backend
+globs: api/**/*.py
+---
+
+# Backend Development Rules
+
+## File Structure
+
+All backend code lives in `api/index.py`. This single file contains:
+- FastAPI app setup
+- Pydantic models
+- Dependency injection (auth, supabase client)
+- All route handlers
+
+## Route Patterns
+
+All routes MUST start with `/api/`:
+
+```python
+@app.get("/api/exercises")
+async def list_exercises():
+    ...
+
+@app.post("/api/workouts/{workout_id}/sets")
+async def log_set(workout_id: str, ...):
+    ...
+```
+
+## Authentication
+
+Use the `get_current_user` dependency for protected routes:
+
+```python
+@app.get("/api/routines")
+async def list_routines(
+    user: dict = Depends(get_current_user),
+    supabase: Client = Depends(get_supabase),
+):
+    # user["id"] contains the authenticated user's UUID
+    result = supabase.table("routines").select("*").eq("user_id", user["id"]).execute()
+    return result.data
+```
+
+## Database Access
+
+Use the Supabase Python client via dependency injection:
+
+```python
+# Query
+result = supabase.table("exercises").select("*").execute()
+
+# Insert
+result = supabase.table("workouts").insert({
+    "user_id": user["id"],
+    "start_time": datetime.utcnow().isoformat(),
+}).execute()
+
+# Update
+result = supabase.table("workouts").update({
+    "status": "completed",
+}).eq("id", workout_id).execute()
+
+# Delete
+supabase.table("routines").delete().eq("id", routine_id).execute()
+```
+
+## Pydantic Models
+
+Define request/response models at the top of the file:
+
+```python
+class SetLogIn(BaseModel):
+    exercise_id: str
+    set_number: int
+    weight: float
+    reps: int
+    rpe: Optional[float] = None
+
+class WorkoutOut(BaseModel):
+    id: str
+    start_time: datetime
+    end_time: Optional[datetime]
+    status: str
+```
+
+## Error Handling
+
+Use HTTPException for errors:
+
+```python
+from fastapi import HTTPException
+
+if not result.data:
+    raise HTTPException(status_code=404, detail="Workout not found")
+
+if workout["status"] != "in_progress":
+    raise HTTPException(status_code=400, detail="Workout is not active")
+```
+
+## Adding Dependencies
+
+Add new packages to `api/requirements.txt`:
+
+```
+fastapi==0.115.0
+pydantic==2.9.0
+new-package==1.0.0
+```

@@ -1,0 +1,123 @@
+---
+description: Styling guidelines with Tailwind CSS
+globs: src/**/*.{tsx,css}
+---
+
+# Styling Rules
+
+## Tailwind CSS v4
+
+This project uses Tailwind CSS v4 with the new CSS-first configuration. Theme variables are defined in `src/app/globals.css`.
+
+## Color Palette
+
+### Dark Mode (Default)
+- Background: `bg-neutral-950` (near black)
+- Card background: `bg-neutral-900/50` (translucent dark)
+- Borders: `border-neutral-800`
+- Primary text: `text-neutral-50` (white)
+- Secondary text: `text-neutral-400`
+- Muted text: `text-neutral-500`
+- Accent/Primary: `text-red-400`, `bg-red-500`
+
+### CSS Variables
+```css
+--primary: oklch(0.637 0.237 25.331);  /* Red accent */
+--background: oklch(0.12 0.01 285);     /* Near black */
+--card: oklch(0.17 0.015 285);          /* Slightly lighter */
+--muted-foreground: oklch(0.65 0.02 285); /* Gray text */
+```
+
+## Common Patterns
+
+### Page Container
+```tsx
+<div className="space-y-6 pb-20">
+  {/* pb-20 for mobile bottom nav clearance */}
+</div>
+```
+
+### Cards
+```tsx
+// Standard card
+<Card className="border-neutral-800 bg-neutral-900/50">
+
+// Highlighted/active card
+<Card className="border-red-500/30 bg-red-500/5">
+
+// Dashed border (for empty states)
+<Card className="border-neutral-800 bg-neutral-900/30 border-dashed">
+```
+
+### Buttons
+```tsx
+// Primary (red bg, dark text)
+<Button>Primary Action</Button>
+
+// Outline
+<Button variant="outline">Secondary</Button>
+
+// Ghost
+<Button variant="ghost" size="icon">
+  <Icon className="w-4 h-4" />
+</Button>
+
+// Destructive styling on outline
+<Button variant="outline" className="border-red-500/50 text-red-400 hover:bg-red-500/10">
+```
+
+### Inputs
+```tsx
+<Input className="bg-neutral-800 border-neutral-700" />
+<Input className="bg-neutral-800/50 border-neutral-700" /> // More transparent
+```
+
+### Text Hierarchy
+```tsx
+<h1 className="text-2xl font-bold">Page Title</h1>
+<p className="text-neutral-400 mt-1">Subtitle</p>
+
+<h2 className="text-lg font-semibold">Section Title</h2>
+
+<span className="text-sm text-neutral-500">Meta text</span>
+```
+
+### Spacing
+- Use `space-y-*` for vertical stacking
+- Use `gap-*` in flex/grid layouts
+- Common values: `space-y-2`, `space-y-4`, `space-y-6`, `gap-2`, `gap-3`, `gap-4`
+
+### Gradients
+```tsx
+// Background gradient
+<div className="bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950">
+
+// Red glow overlay
+<div className="bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-red-950/20 via-transparent to-transparent">
+```
+
+### Icons
+Always use lucide-react icons:
+```tsx
+import { Loader2, Plus, Check, ChevronRight } from "lucide-react";
+
+<Loader2 className="w-4 h-4 animate-spin" />
+<Plus className="w-4 h-4 mr-2" />
+```
+
+### Responsive
+- Mobile-first approach
+- Use `md:` prefix for desktop styles
+- Bottom nav is `md:hidden`, top nav is `hidden md:flex`
+
+### Animations
+```tsx
+// Spinner
+<Loader2 className="animate-spin" />
+
+// Pulse (for live indicators)
+<div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+
+// Backdrop blur
+<div className="backdrop-blur-lg bg-neutral-950/80">
+```

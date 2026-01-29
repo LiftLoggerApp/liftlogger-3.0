@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LiftLogger 3.0
 
-## Getting Started
+A PWA workout tracking app built with Next.js 15, Python (FastAPI), and Supabase.
 
-First, run the development server:
+## Features
+
+- **Scheduled Routines**: Create weekly workout routines for each day
+- **Live Workout Tracking**: Active timer, set logging, and exercise management
+- **Workout History**: View completed workouts with volume and duration stats
+- **PWA Support**: Install on mobile or desktop for native-like experience
+
+## Tech Stack
+
+- **Frontend**: Next.js 15 (App Router), TypeScript, Tailwind CSS, shadcn/ui
+- **Backend**: Python (FastAPI) on Vercel Serverless Functions
+- **Database**: Supabase (PostgreSQL)
+- **Auth**: Supabase Auth
+- **State**: TanStack Query
+
+## Setup
+
+### 1. Supabase
+
+1. Create a new project at [supabase.com](https://supabase.com)
+2. Go to SQL Editor and run the contents of `supabase/schema.sql`
+3. Get your project URL and keys from Settings > API
+
+### 2. Environment Variables
+
+Create a `.env.local` file:
+
+```env
+# Frontend (public)
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+
+# Backend (server-side)
+SUPABASE_URL=your-supabase-url
+SUPABASE_SERVICE_KEY=your-supabase-service-key
+SUPABASE_JWT_SECRET=your-supabase-jwt-secret
+```
+
+Find the JWT secret in Supabase > Settings > API > JWT Settings.
+
+### 3. Install Dependencies
+
+```bash
+npm install
+```
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy to Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Push to GitHub
+2. Import to Vercel
+3. Add environment variables
+4. Deploy!
 
-## Learn More
+Vercel automatically detects the Python backend in `/api` and deploys it as serverless functions.
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+├── api/                    # Python FastAPI backend
+│   ├── index.py           # Main API routes
+│   └── requirements.txt   # Python dependencies
+├── src/
+│   ├── app/               # Next.js App Router pages
+│   ├── components/        # React components
+│   ├── hooks/             # Custom React hooks
+│   └── lib/               # Utilities and API client
+├── supabase/
+│   └── schema.sql         # Database schema
+└── vercel.json            # Vercel configuration
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## API Endpoints
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/health` | Health check |
+| GET | `/api/exercises` | List all exercises |
+| GET | `/api/exercises/search?q=` | Search exercises |
+| GET | `/api/routines` | Get user's routines |
+| POST | `/api/routines` | Create routine |
+| PUT | `/api/routines/:id` | Update routine |
+| DELETE | `/api/routines/:id` | Delete routine |
+| GET | `/api/workouts/active` | Get active workout |
+| POST | `/api/workouts/start` | Start new workout |
+| GET | `/api/workouts/:id` | Get workout details |
+| POST | `/api/workouts/:id/sets` | Log a set |
+| POST | `/api/workouts/:id/finish` | Complete workout |
+| GET | `/api/history` | Get workout history |

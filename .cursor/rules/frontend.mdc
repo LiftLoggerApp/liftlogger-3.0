@@ -1,0 +1,76 @@
+---
+description: Rules for working with the Next.js frontend
+globs: src/**/*.{ts,tsx}
+---
+
+# Frontend Development Rules
+
+## Component Structure
+
+- All pages use the App Router in `src/app/`
+- Client components must have `"use client"` at the top
+- Wrap authenticated pages in `<AppShell>` for consistent navigation
+- Use shadcn/ui components from `@/components/ui/`
+
+## Imports
+
+```typescript
+// UI Components
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+// Icons (lucide-react)
+import { Loader2, Plus, Check } from "lucide-react";
+
+// API calls
+import { listRoutines, startWorkout } from "@/lib/api";
+
+// Supabase (client-side only)
+import { createClient } from "@/lib/supabase/client";
+
+// Auth hook
+import { useAuth } from "@/hooks/use-auth";
+```
+
+## API Calls
+
+Always use the API client in `src/lib/api.ts` - it handles auth headers automatically:
+
+```typescript
+// Good
+const routines = await listRoutines();
+
+// Bad - don't call fetch directly for authenticated endpoints
+const res = await fetch("/api/routines");
+```
+
+## Styling
+
+- Use Tailwind CSS classes
+- Dark mode is default - design for dark backgrounds
+- Primary color is red (`text-primary`, `bg-primary`)
+- Use `neutral-*` for grays (e.g., `bg-neutral-900`, `text-neutral-400`)
+- Mobile-first: design for mobile, add `md:` breakpoints for desktop
+
+## State Management
+
+- Use TanStack Query for server state when appropriate
+- Local state with `useState` for UI state
+- Loading states should show `<Loader2 className="animate-spin" />`
+
+## Error Handling
+
+```typescript
+try {
+  const data = await apiCall();
+} catch (error) {
+  console.error("Failed to load:", error);
+  // Show user-friendly error in UI
+}
+```
+
+## Forms
+
+- Use controlled inputs with `useState`
+- Disable submit button while loading
+- Show loading spinner in button during submission

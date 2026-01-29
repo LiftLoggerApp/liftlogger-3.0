@@ -1,0 +1,47 @@
+# LiftLogger 3.0 - Cursor Rules
+
+## Project Context
+This is a PWA workout tracking app with Next.js 15 frontend and Python FastAPI backend on Vercel.
+
+## Quick Reference
+
+### Key Files
+- `src/lib/api.ts` - All API calls (add new endpoints here)
+- `api/index.py` - Python backend (all routes)
+- `src/components/app-shell.tsx` - Navigation wrapper
+- `supabase/schema.sql` - Database schema
+
+### Commands
+```bash
+npm run dev          # Start frontend dev server
+npx vercel dev       # Full stack with Python API
+npm run build        # Production build
+npx shadcn@latest add [name]  # Add UI component
+```
+
+### Adding Features
+
+1. **New API Endpoint**:
+   - Add route in `api/index.py`
+   - Add typed function in `src/lib/api.ts`
+
+2. **New Page**:
+   - Create `src/app/[route]/page.tsx`
+   - Wrap in `<AppShell>` for nav
+
+3. **New Component**:
+   - Create in `src/components/`
+   - Use `"use client"` for interactivity
+
+### Code Style
+- TypeScript strict mode
+- Functional components with hooks
+- Tailwind CSS for styling
+- Dark mode by default
+- Mobile-first responsive
+
+### Don't Forget
+- All API routes start with `/api/`
+- Auth header is auto-added by `src/lib/api.ts`
+- RLS is enabled - users only see their own data
+- PWA disabled in development mode

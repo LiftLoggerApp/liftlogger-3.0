@@ -1,0 +1,134 @@
+---
+description: Rules for React components
+globs: src/components/**/*.tsx
+---
+
+# Component Rules
+
+## Directory Structure
+
+```
+src/components/
+├── ui/              # shadcn/ui components (auto-generated)
+│   ├── button.tsx
+│   ├── card.tsx
+│   └── ...
+├── app-shell.tsx    # Main navigation wrapper
+├── providers.tsx    # React Query provider
+└── workout-timer.tsx # Live timer component
+```
+
+## shadcn/ui Components
+
+Located in `src/components/ui/`. Do not edit these directly - they are managed by shadcn CLI.
+
+To add new shadcn components:
+```bash
+npx shadcn@latest add [component-name]
+```
+
+Available components: button, card, dialog, input, label, sheet, tabs
+
+## AppShell Component
+
+Wrap all authenticated pages in `<AppShell>`:
+
+```tsx
+import { AppShell } from "@/components/app-shell";
+
+export default function MyPage() {
+  return (
+    <AppShell>
+      <div className="space-y-6">
+        {/* Page content */}
+      </div>
+    </AppShell>
+  );
+}
+```
+
+AppShell provides:
+- Header with logo and navigation
+- Mobile bottom navigation bar
+- Desktop top navigation
+- Sign out functionality
+- Max-width container (`max-w-2xl`)
+
+## WorkoutTimer Component
+
+Live timer that updates every second:
+
+```tsx
+import { WorkoutTimer } from "@/components/workout-timer";
+
+<WorkoutTimer startTime={workout.start_time} />
+```
+
+Props:
+- `startTime: string` - ISO timestamp when workout started
+- `className?: string` - Additional CSS classes
+
+## Creating New Components
+
+```tsx
+"use client";  // Required for client components
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+
+interface MyComponentProps {
+  title: string;
+  onAction: () => void;
+}
+
+export function MyComponent({ title, onAction }: MyComponentProps) {
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-lg font-bold">{title}</h2>
+      <Button onClick={onAction} disabled={loading}>
+        {loading ? "Loading..." : "Click Me"}
+      </Button>
+    </div>
+  );
+}
+```
+
+## Common Patterns
+
+### Loading State
+```tsx
+if (loading) {
+  return (
+    <div className="flex items-center justify-center h-[60vh]">
+      <Loader2 className="w-8 h-8 animate-spin text-neutral-500" />
+    </div>
+  );
+}
+```
+
+### Empty State
+```tsx
+<Card className="border-neutral-800 bg-neutral-900/50">
+  <CardContent className="py-12 text-center">
+    <Icon className="w-12 h-12 mx-auto text-neutral-600 mb-4" />
+    <h3 className="text-lg font-medium mb-2">No items yet</h3>
+    <p className="text-neutral-500 mb-4">Description here.</p>
+    <Button>Action</Button>
+  </CardContent>
+</Card>
+```
+
+### Card with Header
+```tsx
+<Card className="border-neutral-800 bg-neutral-900/50">
+  <CardHeader className="pb-3">
+    <CardTitle className="text-lg">Title</CardTitle>
+    <CardDescription>Subtitle text</CardDescription>
+  </CardHeader>
+  <CardContent>
+    {/* Content */}
+  </CardContent>
+</Card>
+```

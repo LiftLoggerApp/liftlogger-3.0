@@ -1,0 +1,82 @@
+---
+description: Rules for database schema and Supabase
+globs: supabase/**/*.sql
+---
+
+# Database Rules
+
+## Schema Location
+
+All schema definitions are in `supabase/schema.sql`. Run this file in the Supabase SQL Editor to set up the database.
+
+## Table Naming
+
+- Use snake_case for table and column names
+- Plural table names: `exercises`, `workouts`, `routine_exercises`
+- Join tables: `routine_exercises` (combines `routines` + `exercises`)
+
+## Primary Keys
+
+Always use UUID primary keys:
+
+```sql
+CREATE TABLE example (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  ...
+);
+```
+
+## Foreign Keys
+
+Reference `auth.users(id)` for user relationships:
+
+```sql
+user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+```
+
+## Timestamps
+
+Include created_at on all tables:
+
+```sql
+created_at TIMESTAMPTZ DEFAULT NOW(),
+updated_at TIMESTAMPTZ DEFAULT NOW()
+```
+
+## Row Level Security
+
+ALL tables with user data must have RLS enabled:
+
+```sql
+ALTER TABLE tablename ENABLE ROW LEVEL SECURITY;
+
+-- User can only see their own data
+CREATE POLICY "Users can view own data" ON tablename 
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- For related tables, check through parent
+CREATE POLICY "Users can view own routine exercises" ON routine_exercises 
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM routines WHERE routines.id = routine_exercises.routine_id AND routines.user_id = auth.uid())
+  );
+```
+
+## Indexes
+
+Add indexes for frequently queried columns:
+
+```sql
+CREATE INDEX idx_workouts_user_id ON workouts(user_id);
+CREATE INDEX idx_workouts_status ON workouts(user_id, status);
+```
+
+## Key Tables
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| `profiles` | User details | `id` (matches auth.users) |
+| `exercises` | Master exercise list | `name`, `muscle_group` |
+| `routines` | Weekly schedule | `user_id`, `schedule_day_index` |
+| `routine_exercises` | Routine details | `routine_id`, `exercise_id`, `target_sets` |
+| `workouts` | Workout sessions | `user_id`, `start_time`, `status` |
+| `workout_sets` | Logged sets | `workout_id`, `exercise_id`, `weight`, `reps` |

@@ -1,0 +1,109 @@
+---
+description: Rules for the frontend API client
+globs: src/lib/api.ts
+---
+
+# API Client Rules
+
+## Purpose
+
+`src/lib/api.ts` is the single source of truth for all API calls from the frontend. It:
+- Automatically attaches auth headers from Supabase session
+- Provides typed functions for each endpoint
+- Exports TypeScript interfaces for API responses
+
+## Adding a New API Function
+
+1. Define the response type:
+
+```typescript
+export interface NewFeature {
+  id: string;
+  name: string;
+  created_at: string;
+}
+```
+
+2. Add the function:
+
+```typescript
+export async function getNewFeature(id: string): Promise<NewFeature> {
+  return apiRequest<NewFeature>(`/new-feature/${id}`);
+}
+
+export async function createNewFeature(data: { name: string }): Promise<NewFeature> {
+  return apiRequest<NewFeature>("/new-feature", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+```
+
+## Request Patterns
+
+```typescript
+// GET request
+return apiRequest<T>("/endpoint");
+
+// GET with query params
+return apiRequest<T>(`/endpoint?param=${encodeURIComponent(value)}`);
+
+// POST request
+return apiRequest<T>("/endpoint", {
+  method: "POST",
+  body: JSON.stringify(data),
+});
+
+// PUT request
+return apiRequest<T>(`/endpoint/${id}`, {
+  method: "PUT",
+  body: JSON.stringify(data),
+});
+
+// DELETE request
+await apiRequest(`/endpoint/${id}`, { method: "DELETE" });
+```
+
+## Error Handling
+
+The `apiRequest` function throws on non-2xx responses. Callers should handle errors:
+
+```typescript
+try {
+  const data = await getNewFeature(id);
+} catch (error) {
+  // error.message contains the API error detail
+  console.error("API error:", error);
+}
+```
+
+## Existing Endpoints
+
+| Function | Method | Endpoint |
+|----------|--------|----------|
+| `searchExercises(q)` | GET | `/exercises/search?q=` |
+| `listExercises()` | GET | `/exercises` |
+| `listRoutines()` | GET | `/routines` |
+| `createRoutine(data)` | POST | `/routines` |
+| `updateRoutine(id, data)` | PUT | `/routines/:id` |
+| `deleteRoutine(id)` | DELETE | `/routines/:id` |
+| `getActiveWorkout()` | GET | `/workouts/active` |
+| `startWorkout(routineId?)` | POST | `/workouts/start` |
+| `getWorkout(id)` | GET | `/workouts/:id` |
+| `logSet(workoutId, data)` | POST | `/workouts/:id/sets` |
+| `finishWorkout(id)` | POST | `/workouts/:id/finish` |
+| `getHistory(limit, offset)` | GET | `/history` |
+| `getExerciseHistory(id)` | GET | `/exercises/:id/history` |
+
+## Helper Functions
+
+The file also exports utility functions:
+
+```typescript
+// Day name helpers
+DAY_NAMES  // ["Sunday", "Monday", ...]
+getDayName(index)  // 0 -> "Sunday"
+
+// Duration formatting
+formatDuration(startTime, endTime?)  // "1:23:45" or "45:23"
+```
