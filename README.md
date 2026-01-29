@@ -44,17 +44,38 @@ Find the JWT secret in Supabase > Settings > API > JWT Settings.
 
 ### 3. Install Dependencies
 
+Dependencies are already installed. If you need to reinstall:
+
 ```bash
 npm install
 ```
 
 ### 4. Run Development Server
 
+**Option A: Full Stack (Recommended)**
+
+Run both frontend and Python API using Vercel CLI:
+
+```bash
+npx vercel dev
+```
+
+This will:
+- Start Next.js dev server on `http://localhost:3000`
+- Run Python FastAPI backend as serverless functions
+- Handle API routing automatically
+
+**Option B: Frontend Only**
+
+If you only want to work on the frontend (API calls will fail):
+
 ```bash
 npm run dev
 ```
 
 Visit [http://localhost:3000](http://localhost:3000)
+
+**Note**: For full functionality, you need Option A since the Python API handles all backend logic.
 
 ## Deploy to Vercel
 
