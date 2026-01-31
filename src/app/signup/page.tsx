@@ -33,22 +33,28 @@ export default function SignupPage() {
     }
 
     setLoading(true);
+    console.log("Starting signup with email:", email);
 
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.signUp({
+      console.log("Supabase client created");
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
+      console.log("Signup response:", { data, error });
 
       if (error) {
+        console.error("Signup error:", error);
         setError(error.message);
         return;
       }
 
+      console.log("Signup successful, redirecting to dashboard");
       router.push("/dashboard");
       router.refresh();
-    } catch {
+    } catch (err) {
+      console.error("Unexpected error:", err);
       setError("An unexpected error occurred");
     } finally {
       setLoading(false);

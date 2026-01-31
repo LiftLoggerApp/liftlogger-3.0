@@ -3,6 +3,14 @@ import withPWA from "@ducanh2912/next-pwa";
 
 const nextConfig: NextConfig = {
   turbopack: {},
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "http://localhost:8000/api/:path*",
+      },
+    ];
+  },
 };
 
 const pwaConfig = withPWA({
